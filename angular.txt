@@ -1,0 +1,152 @@
+Sure, here's how you can implement the provided HTML, CSS, and JavaScript code into an Angular application:
+
+Firstly, create an Angular component for your CRUD operations. Let's name it `product-management`.
+
+1. Create a new Angular component using Angular CLI:
+
+```bash
+ng generate component product-management
+```
+
+2. Replace the content of `product-management.component.html` with your HTML code:
+
+```html
+<!-- product-management.component.html -->
+<div class="formV">
+    <form autocomplete="off" (ngSubmit)="onFormSubmit()">
+        <div>
+            <label for="productcode">Product code</label>
+            <input type="text" name="productcode" id="productcode" required [(ngModel)]="formData.productcode">
+        </div>
+        <div>
+            <label for="productname">Product Name</label>
+            <input type="text" name="productname" id="productname" required [(ngModel)]="formData.productname">
+        </div>
+        <div>
+            <label for="qty">Quantity</label>
+            <input type="number" name="qty" id="qty" required [(ngModel)]="formData.qty">
+        </div>
+        <div>
+            <label for="perPrice">Price</label>
+            <input type="number" name="perPrice" id="perPrice" required [(ngModel)]="formData.perPrice">
+        </div>
+        <div class="form_action--button">
+            <input type="submit" value="Submit">
+            <input type="reset" value="Reset">
+        </div>
+    </form>
+</div>
+
+<table class="list" id="storeList">
+    <thead>
+        <tr>
+            <th>Product code</th>
+            <th>Product name</th>
+            <th>Qty</th>
+            <th>Price</th>
+            <th>Action</th>
+        </tr>
+    </thead>
+    <tbody>
+        <tr *ngFor="let product of productList; let i = index">
+            <td>{{ product.productcode }}</td>
+            <td>{{ product.productname }}</td>
+            <td>{{ product.qty }}</td>
+            <td>{{ product.perPrice | currency }}</td>
+            <td>
+                <input type="radio" name="selectedProduct" (click)="calculateTotalBill()"> 
+                <button (click)="onEdit(i)">Edit</button> 
+                <button (click)="onDelete(i)">Delete</button>
+            </td>
+        </tr>
+    </tbody>
+</table>
+<div>Total Bill: <span>{{ totalBill | currency }}</span></div>
+```
+
+3. Replace the content of `product-management.component.ts` with your JavaScript code, but converted into TypeScript and implemented within the Angular component:
+
+```typescript
+// product-management.component.ts
+import { Component } from '@angular/core';
+
+@Component({
+  selector: 'app-product-management',
+  templateUrl: './product-management.component.html',
+  styleUrls: ['./product-management.component.css']
+})
+export class ProductManagementComponent {
+  formData: any = {};
+  productList: any[] = [];
+  totalBill: number = 0;
+  selectedRow: any = null;
+
+  onFormSubmit() {
+    if (this.selectedRow === null) {
+      this.insertProduct();
+    }
+    this.calculateTotalBill();
+  }
+
+  insertProduct() {
+    this.productList.push({
+      productcode: this.formData.productcode,
+      productname: this.formData.productname,
+      qty: this.formData.qty,
+      perPrice: this.formData.perPrice
+    });
+  }
+
+  calculateTotalBill() {
+    this.totalBill = this.productList.reduce((total, product) => {
+      return total + (product.perPrice * product.qty);
+    }, 0);
+  }
+
+  onEdit(index: number) {
+    this.selectedRow = index;
+    this.formData = Object.assign({}, this.productList[index]);
+  }
+
+  onDelete(index: number) {
+    if (confirm('Are you sure to delete this record?')) {
+      this.productList.splice(index, 1);
+      this.resetForm();
+      this.calculateTotalBill();
+    }
+  }
+
+  resetForm() {
+    this.formData = {};
+    this.selectedRow = null;
+  }
+}
+```
+
+4. Import the FormsModule in the `app.module.ts` to use ngModel for two-way data binding:
+
+```typescript
+// app.module.ts
+import { NgModule } from '@angular/core';
+import { BrowserModule } from '@angular/platform-browser';
+import { FormsModule } from '@angular/forms';
+
+import { AppComponent } from './app.component';
+import { ProductManagementComponent } from './product-management/product-management.component';
+
+@NgModule({
+  declarations: [
+    AppComponent,
+    ProductManagementComponent
+  ],
+  imports: [
+    BrowserModule,
+    FormsModule
+  ],
+  providers: [],
+  bootstrap: [AppComponent]
+})
+export class AppModule { }
+```
+
+Now, you have an Angular component `ProductManagementComponent` that implements the CRUD operations with the provided HTML, CSS, and JavaScript logic. Make sure to adjust the file paths and structure according to your project's needs.
